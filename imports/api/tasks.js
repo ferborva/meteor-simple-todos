@@ -36,12 +36,22 @@ Meteor.methods({
   'tasks.remove'(taskId){
     check(taskId, String);
 
+    const task = Meteor.tasks.findOne(taskId);
+    if (task.owner !== this.userId) {
+      throw new Meteor.Error(403, 'Not Authorized');
+    }
+
     Tasks.remove(taskId);
   },
 
   'tasks.setChecked'(taskId, setChecked) {
     check(taskId, String);
     check(setChecked, Boolean);
+
+    const task = Meteor.tasks.findOne(taskId);
+    if (task.private && task.owner !== this.userId) {
+      throw new Meteor.Error(403, 'Not Authorized');
+    }
 
     Tasks.update(taskId, { $set: { checked: setChecked } });
   },
@@ -52,7 +62,7 @@ Meteor.methods({
 
     const task = Tasks.findOne(taskId);
 
-    if (task.owner !== this.userId) {
+    if (task.private && task.owner !== this.userId) {
       // On server
       throw new Meteor.Error(403, 'Not Authorized');
     }
