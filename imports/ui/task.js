@@ -1,6 +1,5 @@
+import { Meteor } from 'meteor/meteor';
 import { Template } from 'meteor/templating';
-
-import { Tasks } from '../api/tasks.js';
 
 import './task.html';
 
@@ -9,15 +8,27 @@ Template.task.events({
    * Toggle check Click event handler
    */
   'click .toggle-checked'() {
-    Tasks.update(this._id, {
-      $set: { checked: !this.checked }
-    });
+    // Set the checked property to the opposite of its current value
+    Meteor.call('tasks.setChecked', this._id, !this.checked);
   },
 
   /**
    * Delete Click event handler
    */
   'click .delete'(){
-    Tasks.remove(this._id);
+    Meteor.call('tasks.remove', this._id);
+  },
+
+  /**
+   * Toggle task privacy
+   */
+  'click .toggle-private'(){
+    Meteor.call('tasks.setPrivate', this._id, !this.private);
+  }
+});
+
+Template.task.helpers({
+  isOwner() {
+    return this.owner === Meteor.userId();
   }
 });

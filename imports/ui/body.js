@@ -1,3 +1,4 @@
+import { Meteor } from 'meteor/meteor';
 import { Template } from 'meteor/templating';
 import { ReactiveDict } from 'meteor/reactive-dict';
 
@@ -8,6 +9,7 @@ import './body.html';
 
 Template.body.onCreated(function bodyOnCreated () {
   this.state = new ReactiveDict();
+  Meteor.subscribe('tasks');
 });
 
 Template.body.helpers({
@@ -36,11 +38,7 @@ Template.body.events({
     const text = target.text.value;
 
     // Insert taks into local collection
-    Tasks.insert({
-      text,
-      checked: false,
-      createdAt: new Date() // current device time
-    });
+    Meteor.call('tasks.insert', text);
 
     // Clear the form
     target.text.value = '';
